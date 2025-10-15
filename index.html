@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClimaCell Weather App - Previsão do Tempo</title>
+    <meta name="description" content="Aplicação de previsão do tempo usando a API Tomorrow.io (ClimaCell) com interface moderna e elementos gráficos azuis">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">
+                    <span class="logo-icon">🌤️</span>
+                    ClimaCell Weather
+                </h1>
+                <nav class="nav">
+                    <button class="nav-btn active" data-view="current">Atual</button>
+                    <button class="nav-btn" data-view="forecast">Previsão</button>
+                    <button class="nav-btn" data-view="maps">Mapas</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Search Section -->
+            <section class="search-section">
+                <div class="search-container">
+                    <div class="search-input-wrapper">
+                        <input 
+                            type="text" 
+                            id="locationInput" 
+                            class="search-input" 
+                            placeholder="Digite uma cidade (ex: São Paulo, Rio de Janeiro...)"
+                            aria-label="Buscar localização"
+                        >
+                        <button id="searchBtn" class="search-btn" aria-label="Buscar">
+                            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <button id="locationBtn" class="location-btn" aria-label="Usar localização atual">
+                        <svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        Usar minha localização
+                    </button>
+                </div>
+            </section>
+
+            <!-- Loading State -->
+            <section class="loading-section hidden" id="loadingSection">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Carregando dados meteorológicos...</p>
+                </div>
+            </section>
+
+            <!-- Error State -->
+            <section class="error-section hidden" id="errorSection">
+                <div class="error-container">
+                    <div class="error-icon">⚠️</div>
+                    <h3>Ops! Algo deu errado</h3>
+                    <p id="errorMessage">Não foi possível carregar os dados meteorológicos.</p>
+                    <button id="retryBtn" class="retry-btn">Tentar novamente</button>
+                </div>
+            </section>
+
+            <!-- Weather Content -->
+            <section class="weather-content hidden" id="weatherContent">
+                <!-- Current Weather Card -->
+                <div class="weather-card current-weather">
+                    <div class="current-weather-header">
+                        <div class="location-info">
+                            <h2 id="currentLocation">São Paulo, SP</h2>
+                            <p id="currentDateTime">Hoje, 15:30</p>
+                        </div>
+                        <div class="weather-icon-large">
+                            <div id="currentWeatherIcon" class="weather-icon">☀️</div>
+                        </div>
+                    </div>
+                    
+                    <div class="current-weather-main">
+                        <div class="temperature-display">
+                            <span id="currentTemp" class="temperature">25°</span>
+                            <div class="temperature-details">
+                                <p id="currentCondition" class="condition">Ensolarado</p>
+                                <p class="feels-like">Sensação térmica: <span id="feelsLike">27°</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="weather-metrics">
+                        <div class="metric">
+                            <div class="metric-icon">💧</div>
+                            <div class="metric-info">
+                                <span class="metric-label">Umidade</span>
+                                <span id="humidity" class="metric-value">65%</span>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-icon">💨</div>
+                            <div class="metric-info">
+                                <span class="metric-label">Vento</span>
+                                <span id="windSpeed" class="metric-value">12 km/h</span>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-icon">🌡️</div>
+                            <div class="metric-info">
+                                <span class="metric-label">Pressão</span>
+                                <span id="pressure" class="metric-value">1013 hPa</span>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-icon">👁️</div>
+                            <div class="metric-info">
+                                <span class="metric-label">Visibilidade</span>
+                                <span id="visibility" class="metric-value">10 km</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hourly Forecast -->
+                <div class="weather-card">
+                    <h3 class="card-title">Previsão por Hora</h3>
+                    <div class="hourly-forecast" id="hourlyForecast">
+                        <!-- Hourly items will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Daily Forecast -->
+                <div class="weather-card">
+                    <h3 class="card-title">Próximos 5 Dias</h3>
+                    <div class="daily-forecast" id="dailyForecast">
+                        <!-- Daily items will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Weather Details -->
+                <div class="weather-card">
+                    <h3 class="card-title">Detalhes Meteorológicos</h3>
+                    <div class="weather-details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Índice UV</span>
+                            <span id="uvIndex" class="detail-value">5</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Ponto de Orvalho</span>
+                            <span id="dewPoint" class="detail-value">18°C</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cobertura de Nuvens</span>
+                            <span id="cloudCover" class="detail-value">25%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Probabilidade de Chuva</span>
+                            <span id="precipitationProbability" class="detail-value">10%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 ClimaCell Weather App. Dados fornecidos por <a href="https://tomorrow.io" target="_blank" rel="noopener">Tomorrow.io</a></p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
